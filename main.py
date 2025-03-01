@@ -4,31 +4,35 @@ import numpy as np
 import faiss
 import random
 
-def char_to_bits {
-    'A' : 1,
-    'C' : 2,
-    'G' : 4,
-    'T' : 8
+char_to_bits = {
+    'A' : np.array([0,0,0,1], dtype=bool),
+    'C' : np.array([0,0,1,0], dtype=bool),
+    'G' : np.array([0,1,0,0], dtype=bool),
+    'T' : np.array([1,0,0,0], dtype=bool)
 }
 
 def create_random_string(str_len):
-    return ''.join(random.choices(['A','C','G','T'], k=100))
+    return ''.join(random.choices(['A','C','G','T'], k=str_len))
+
 
 def kmers(sequence: str, k: int = 6):
     """Convert DNA sequence into k-mer format."""
     return " ".join([sequence[i:i+k] for i in range(len(sequence) - k + 1)])
 
+
 def encode_kmer(kmer: str):
     """Convert kmer into bitwise embedding."""
-    kmer_sequence = kmers(kmer)
-    bit_string = np.zeros(len(kmer)*4)
-    for char in kmer:
-        bit_    
+    kmer_list = list(kmer)
+    kmer_bits = [char_to_bits[char] for char in kmer_list]
+    kmer_bits_flat = np.array(kmer_bits).flatten()
+    
+    return kmer_bits_flat
 
-# Function to search for similar genomes
-def search_similar_genomes(query_sequence: str, top_k: int = 10):
+
+# Function to search for similar kmers
+def search_similar_kmers(index, query_sequence, top_k):
     """Search for the top_k most similar reference genomes."""
-    query_embedding = encode_string(query_sequence).astype("float32")
+    query_embedding = encode_kmer(query_sequence)
     D, I = index.search(query_embedding, top_k)
     return {"closest_genomes": I.tolist(), "distances": D.tolist()}
 
@@ -63,16 +67,17 @@ if __name__ == "__main__":
     ref_kmers = []
 
     # Step 1: create 100 random kmers
-    for i in range(100):
+    for i in range(10):
         kmer = create_random_string(k)
         ref_kmers.append(kmer)
 
     # Convert them to embeddings
-    reference_embeddings = np.vstack([encode_string(seq) for seq in ref_kmers])
+    reference_embeddings = np.vstack([encode_kmer(seq) for seq in ref_kmers])
 
     print(reference_embeddings.shape)
-    print("References converted to embeddings.")
+    print(reference_embeddings)
     
+    """
     # Create FAISS index
     embedding_dim = reference_embeddings.shape[1]
     index = faiss.IndexFlatL2(embedding_dim)
@@ -93,4 +98,4 @@ if __name__ == "__main__":
             
     print(distances)
         
-            
+    """
