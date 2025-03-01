@@ -4,6 +4,13 @@ import numpy as np
 import faiss
 import random
 
+def char_to_bits {
+    'A' : 1,
+    'C' : 2,
+    'G' : 4,
+    'T' : 8
+}
+
 def create_random_string(str_len):
     return ''.join(random.choices(['A','C','G','T'], k=100))
 
@@ -11,14 +18,12 @@ def kmers(sequence: str, k: int = 6):
     """Convert DNA sequence into k-mer format."""
     return " ".join([sequence[i:i+k] for i in range(len(sequence) - k + 1)])
 
-def encode_string(genome_sequence: str):
-    """Convert genome sequence into DNABERT embedding."""
-    kmer_sequence = kmers(genome_sequence)
-    tokens = tokenizer(kmer_sequence, return_tensors="pt", padding=True, truncation=True)
-    
-    with torch.no_grad():
-        embedding = model(**tokens).last_hidden_state.mean(dim=1)  # Average pooling
-    return embedding.numpy()
+def encode_kmer(kmer: str):
+    """Convert kmer into bitwise embedding."""
+    kmer_sequence = kmers(kmer)
+    bit_string = np.zeros(len(kmer)*4)
+    for char in kmer:
+        bit_    
 
 # Function to search for similar genomes
 def search_similar_genomes(query_sequence: str, top_k: int = 10):
@@ -53,12 +58,6 @@ def mutate_kmer(dna: str, hamming_distance: int) -> str:
 
 # Example usage
 if __name__ == "__main__":
-    
-    # Load DNABERT model and tokenizer
-    MODEL_NAME = "zhihan1996/DNA_bert_6"
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-    model = AutoModel.from_pretrained(MODEL_NAME)
-    model.eval()
     
     k = 21
     ref_kmers = []
