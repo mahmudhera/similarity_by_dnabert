@@ -64,7 +64,7 @@ def mutate_kmer(dna: str, hamming_distance: int) -> str:
 # Example usage
 if __name__ == "__main__":
     
-    k = 21
+    k = 22
     ref_kmers = []
 
     # Step 1: create 100 random kmers
