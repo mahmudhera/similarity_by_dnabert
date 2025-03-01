@@ -1,8 +1,9 @@
-import torch
-from transformers import AutoTokenizer, AutoModel
 import numpy as np
 import faiss
 import random
+
+faiss.omp_set_num_threads(NUM_THREADS)
+
 
 char_to_bits = {
     'A' : np.array([0,0,0,1], dtype=bool),
@@ -75,12 +76,12 @@ if __name__ == "__main__":
     reference_embeddings = np.vstack([encode_kmer(seq) for seq in ref_kmers])
 
     print(reference_embeddings.shape)
-    print(reference_embeddings)
     
-    """
+    
     # Create FAISS index
+    nlist = 4096  # Number of clusters
     embedding_dim = reference_embeddings.shape[1]
-    index = faiss.IndexFlatL2(embedding_dim)
+    index = faiss.IndexBinaryFlat(embedding_dim)
     index.add(reference_embeddings)
     faiss.write_index(index, "genome_index.faiss")
 
@@ -93,9 +94,7 @@ if __name__ == "__main__":
         for i in range(num_simulations):
             kmer = ref_kmers[random.randint(0,len(ref_kmers)-1)]
             mut_kmer = mutate_kmer(kmer, hd)
-            results = search_similar_genomes(mut_kmer, top_k=1)
+            results = search_similar_kmers(index, mut_kmer, top_k=2)
             distances[hd].append(results["distances"][0])
             
     print(distances)
-        
-    """
