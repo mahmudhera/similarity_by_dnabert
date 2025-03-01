@@ -1,0 +1,6 @@
+torch
+transformers
+numpy
+faiss-cpu
+fastapi
+uvicorn
