@@ -31,9 +31,8 @@ def encode_kmer(kmer: str):
 
 
 # Function to search for similar kmers
-def search_similar_kmers(index, query_sequence, top_k):
+def search_similar_kmers(index, query_embedding, top_k):
     """Search for the top_k most similar reference genomes."""
-    query_embedding = encode_kmer(query_sequence)
     D, I = index.search(query_embedding, top_k)
     return {"closest_genomes": I.tolist(), "distances": D.tolist()}
 
@@ -74,14 +73,16 @@ if __name__ == "__main__":
 
     # Convert them to embeddings
     reference_embeddings = np.vstack([encode_kmer(seq) for seq in ref_kmers])
-
+    print(reference_embeddings.shape)
+    reference_embeddings = reference_embeddings.astype('uint8')
+    reference_embeddings = np.packbits(reference_embeddings, axis=1)
     print(reference_embeddings.shape)
     
-    
+ 
     # Create FAISS index
     nlist = 4096  # Number of clusters
     embedding_dim = reference_embeddings.shape[1]
-    index = faiss.IndexBinaryFlat(embedding_dim)
+    index = faiss.IndexBinaryFlat(k*4)
     index.add(reference_embeddings)
     faiss.write_index(index, "genome_index.faiss")
 
@@ -94,7 +95,8 @@ if __name__ == "__main__":
         for i in range(num_simulations):
             kmer = ref_kmers[random.randint(0,len(ref_kmers)-1)]
             mut_kmer = mutate_kmer(kmer, hd)
-            results = search_similar_kmers(index, mut_kmer, top_k=2)
+            mut_kmer_embedding = np.packbits(encode_kmer(mut_kmer).astype('uint8'), axis=1)
+            results = search_similar_kmers(index, mut_kmer_embedding, top_k=2)
             distances[hd].append(results["distances"][0])
             
     print(distances)
