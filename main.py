@@ -94,7 +94,7 @@ if __name__ == "__main__":
         for i in range(num_simulations):
             kmer = ref_kmers[random.randint(0,len(ref_kmers)-1)]
             mut_kmer = mutate_kmer(kmer, hd)
-            mut_kmer_embedding = np.packbits(encode_kmer(mut_kmer).astype('uint8'), axis=1)
+            mut_kmer_embedding = np.packbits(encode_kmer(mut_kmer).astype('uint8'), axis=0)
             results = search_similar_kmers(index, mut_kmer_embedding, top_k=2)
             distances[hd].append(results["distances"][0])
             
