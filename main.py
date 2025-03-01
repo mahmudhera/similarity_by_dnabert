@@ -2,7 +2,7 @@ import numpy as np
 import faiss
 import random
 
-faiss.omp_set_num_threads(NUM_THREADS)
+faiss.omp_set_num_threads(4)
 
 
 char_to_bits = {
