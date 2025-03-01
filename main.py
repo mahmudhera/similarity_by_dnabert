@@ -84,7 +84,6 @@ if __name__ == "__main__":
     embedding_dim = reference_embeddings.shape[1]
     index = faiss.IndexBinaryFlat(k*4)
     index.add(reference_embeddings)
-    faiss.write_index(index, "genome_index.faiss")
 
     print("FAISS index successfully stored")
     
