@@ -71,22 +71,31 @@ if __name__ == "__main__":
         kmer = create_random_string(k)
         ref_kmers.append(kmer)
 
-    # Convert them to embeddings
+    # Convert them to embeddings, each kmer takes k*4 bits
     reference_embeddings = np.vstack([encode_kmer(seq) for seq in ref_kmers])
-    print(reference_embeddings.shape)
+    print(reference_embeddings.shape) # (x,88)
     reference_embeddings = reference_embeddings.astype('uint8')
     reference_embeddings = np.packbits(reference_embeddings, axis=1)
-    print(reference_embeddings.shape)
+    print(reference_embeddings.shape) # (x,11)
     
- 
-    # Create FAISS index
-    nlist = 4096  # Number of clusters
-    embedding_dim = reference_embeddings.shape[1]
-    index = faiss.IndexBinaryFlat(k*4)
+    
+    # FAISS Parameters
+    d = k * 4  # Binary embedding dimension
+    nlist = 100  # Number of clusters (coarse quantizer cells)
+    nbits = 8  # Number of bits per PQ component (compression factor)
+    
+    # Create the IVF-PQ index
+    quantizer = faiss.IndexBinaryFlat(d)  # Coarse quantizer
+    index = faiss.IndexBinaryIVF_PQ(quantizer, d, nlist, nbits)
+
+    # Train the index (required for IVF-PQ)
+    index.train(reference_embeddings)
+    
+    # Add data to the index
     index.add(reference_embeddings)
-    
-    # store the index
-    faiss.write_index_binary(index, "binary_index_flat.faiss")
+
+    # Store the index
+    faiss.write_index_binary(index, "binary_index_ivf_pq.faiss")
     
     num_simulations = 5
     
