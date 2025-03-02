@@ -67,7 +67,7 @@ if __name__ == "__main__":
     ref_kmers = []
 
     # Step 1: create 100 random kmers
-    for i in range(10):
+    for i in range(100000):
         kmer = create_random_string(k)
         ref_kmers.append(kmer)
 
