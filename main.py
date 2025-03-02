@@ -94,7 +94,7 @@ if __name__ == "__main__":
     index.add(reference_embeddings)
 
     # Store the index
-    faiss.write_index_binary(index, "binary_index_ivf_pq.faiss")
+    faiss.write_index_binary(index, "binary_index_ivf.faiss")
     
     num_simulations = 5
     
