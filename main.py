@@ -82,11 +82,10 @@ if __name__ == "__main__":
     # FAISS Parameters
     d = k * 4  # Binary embedding dimension
     nlist = 100  # Number of clusters (coarse quantizer cells)
-    nbits = 8  # Number of bits per PQ component (compression factor)
     
     # Create the IVF-PQ index
     quantizer = faiss.IndexBinaryFlat(d)  # Coarse quantizer
-    index = faiss.IndexBinaryIVF_PQ(quantizer, d, nlist, nbits)
+    index = faiss.IndexBinaryIVF(quantizer, d, nlist)
 
     # Train the index (required for IVF-PQ)
     index.train(reference_embeddings)
@@ -105,6 +104,7 @@ if __name__ == "__main__":
             kmer = ref_kmers[random.randint(0,len(ref_kmers)-1)]
             mut_kmer = mutate_kmer(kmer, hd)
             mut_kmer_embedding = np.packbits(encode_kmer(mut_kmer).reshape(1,k*4).astype('uint8'), axis=1)
+            index.nprobe = 10
             results = search_similar_kmers(index, mut_kmer_embedding, top_k=3)
             distances[hd].append(results["distances"][0][0])
             
