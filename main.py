@@ -85,6 +85,9 @@ if __name__ == "__main__":
     index = faiss.IndexBinaryFlat(k*4)
     index.add(reference_embeddings)
     
+    # store the index
+    faiss.write_index_binary(index, "binary_index_flat.faiss")
+    
     num_simulations = 5
     
     distances = {1:[], 2:[], 3:[]}
@@ -93,7 +96,7 @@ if __name__ == "__main__":
             kmer = ref_kmers[random.randint(0,len(ref_kmers)-1)]
             mut_kmer = mutate_kmer(kmer, hd)
             mut_kmer_embedding = np.packbits(encode_kmer(mut_kmer).reshape(1,k*4).astype('uint8'), axis=1)
-            results = search_similar_kmers(index, mut_kmer_embedding, top_k=2)
-            distances[hd].append(results["distances"][0])
+            results = search_similar_kmers(index, mut_kmer_embedding, top_k=3)
+            distances[hd].append(results["distances"][0][0])
             
     print(distances)
